@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 18, "column": 0}, "map": {"version":3,"sources":["file:///Users/williamjiang26/projects/inventoryManagement/app/page.tsx"],"sourcesContent":["import Image from \"next/image\";\n\nexport default function Home() {\n  return (\n    <div className=\"p-20 flex\">\n      {/* Header */}\n      <div className=\"flex-row justify-between\">\n        {\" \"}\n        <div></div>\n        <div>\n          {\" \"}\n          <Button>Add item</Button>\n        </div>\n      </div>\n      {/* Body content */}\n      <div></div>\n    </div>\n  );\n}\n"],"names":[],"mappings":";;;;;;AAEe,SAAS;IACtB,qBACE,8OAAC;QAAI,WAAU;;0BAEb,8OAAC;gBAAI,WAAU;;oBACZ;kCACD,8OAAC;;;;;kCACD,8OAAC;;4BACE;0CACD,8OAAC;0CAAO;;;;;;;;;;;;;;;;;;0BAIZ,8OAAC;;;;;;;;;;;AAGP","debugId":null}}]
+}
