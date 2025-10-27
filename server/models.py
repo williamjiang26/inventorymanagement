@@ -3,8 +3,13 @@ import boto3
 import uuid
 from dotenv import load_dotenv
 from botocore.config import Config
+from botocore.exceptions import ClientError
+from boto3.dynamodb.types import TypeDeserializer
+
 from fastapi import FastAPI, HTTPException
 from typing import List, Optional
+from pydantic import BaseModel
+from decimal import Decimal
 
 load_dotenv()
 
@@ -27,6 +32,20 @@ s3_client = boto3.client(
 
 table = dynamodb.Table(DYNAMODB_TABLE)
 
+# Pydantic models for validation
+class PhotoModel(BaseModel):
+    url: str
+    tag: str
+
+class ItemModel(BaseModel):
+    id: str = str(uuid.uuid4())
+    # name: str
+    productType: str
+    style: str
+    size: str
+    price: Decimal
+    stock: int
+    photos: List[PhotoModel]
 
 def getPresignedURL(
     bucket_name: str = "tdcstore",
@@ -42,31 +61,36 @@ def getPresignedURL(
     return item
 
 
-def create_product(
-    name: str,
-    productType: str,
-    style: str,
-    size: str,
-    price: int,
-    stock: int,
-    photos: Optional[list[str]] = None,
-):
-    product_id = str(uuid.uuid4())
-    item = {
-        "id": product_id,
-        "name": name,
-        "productType": productType,
-        "style": style,
-        "size": size,
-        "price": price,
-        "stock": stock,
-        "photos": photos,
-    }
-
-    table.put_item(Item=item)
-    return item
-
+def create_product(product: ItemModel) -> dict:
+    try:
+        # response = table.scan(
+        #     FilterExpression='name = :name',
+        #     ExpressionAttributeValues={':name': product.name}
+        # )
+        # if response['Items']:
+        #     raise Exception("Product with this name already exists")
+        item = product.dict()
+        table.put_item(Item=item)
+        return item
+    except ClientError as e:
+        raise Exception(f"DynamoDB error: {e.response['Error']['Message']}")
 
 def get_products():
     response = table.scan()
-    return response.get("Items", [])
+    items = response.get("Items", [])
+    deserializedItems = []
+    for item in items:
+        print(item)
+        formatted_item = ItemModel(
+                id=item["id"],
+                productType=item["productType"],
+                style=item["style"],
+                size=item["size"],
+                price=item["price"],
+                stock=item["stock"],
+                photos=[
+                    PhotoModel(url=photo["url"], tag=photo["tag"]) for photo in item["photos"]
+                ],
+            )
+        deserializedItems.append(formatted_item)
+    return deserializedItems

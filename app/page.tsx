@@ -39,27 +39,31 @@ import {
   ButtonGroupSeparator,
 } from "@/components/ui/button-group";
 import { Badge } from "@/components/ui/badge";
+import { gql } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 
-const products = [
-  {
-    url: "https://tdcstore.s3.us-east-1.amazonaws.com/20150815_170908.jpg",
-    type: "Single",
-    style: "TD-031",
-    stock: 10,
-    price: 2500,
-  },
-  {
-    url: "https://tdcstore.s3.us-east-1.amazonaws.com/IMG_0022.jpg",
-    type: "Double",
-    style: "TD-031",
-    stock: 10,
-    price: 5000,
-  },
-];
+const GET_PRODUCTS = gql`
+  query {
+    getProducts {
+      id
+      productType
+      style
+      price
+      stock
+      photos {
+        url
+        tag
+      }
+    }
+  }
+`;
 
 export default function Home() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [layout, setLayout] = useState("grid");
+  const { loading, error, data } = useQuery(GET_PRODUCTS);
+  const products = data?.getProducts || []
+  
   return (
     <div className="p-5 w-full">
       {/* Header */}
@@ -118,8 +122,9 @@ export default function Home() {
                 <Card className="w-full max-w-sm overflow-hidden transition-transform transform hover:scale-105 shadow-lg hover:shadow-xl">
                   <CardContent className="p-0">
                     <div className="relative w-full h-64">
+                      {/* onclick nav to gallery */}
                       <Image
-                        src={product.url}
+                        src={product.photos[0].url}
                         alt={product.style}
                         fill
                         className="object-cover rounded-t-lg"
@@ -139,7 +144,7 @@ export default function Home() {
                       <div className="flex items-center space-x-2">
                         <Palette className="h-4 w-4 text-gray-600" />
                         <Badge variant="secondary" className="truncate">
-                          {product.type}
+                          {product.productType}
                         </Badge>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -172,14 +177,14 @@ export default function Home() {
                 <TableRow key={index}>
                   <TableCell className="font-medium">
                     <Image
-                      src={product.url}
+                      src={product.photos[0].url}
                       alt={product.style}
                       width={50}
                       height={50}
                     />
                   </TableCell>
                   <TableCell>{product.style}</TableCell>
-                  <TableCell>{product.type}</TableCell>
+                  <TableCell>{product.productType}</TableCell>
                   <TableCell>${product.price}</TableCell>
                   <TableCell className="text-right">{product.stock}</TableCell>
                 </TableRow>

@@ -25,26 +25,9 @@ const GET_PRESIGNEDURL = gql`
 `;
 
 const CREATE_PRODUCT = gql`
-  mutation CreateProduct(
-    $name: String!
-    $productType: String!
-    $style: String!
-    $size: String!
-    $price: Int!
-    $stock: Int!
-    $photos: [PhotoInput!]
-  ) {
-    createProduct(
-      name: $name
-      productType: $productType
-      style: $style
-      size: $size
-      price: $price
-      stock: $stock
-      photos: $photos
-    ) {
+  mutation CreateProduct($product: ProductInput!) {
+    createProduct(product: $product) {
       id
-      name
       productType
       style
       size
@@ -59,12 +42,12 @@ const CREATE_PRODUCT = gql`
 `;
 
 const imageFormSchema = z.object({
-  imageUrl: z.array(z.instanceof(File)).optional(),
+  url: z.array(z.instanceof(File)).optional(),
   tag: z.string(),
 });
 
 type Image = {
-  imageUrl: string;
+  url: string;
   tag: string;
 };
 
@@ -78,7 +61,7 @@ const CreateImageForm = ({
   const form = useForm<z.infer<typeof imageFormSchema>>({
     resolver: zodResolver(imageFormSchema),
     defaultValues: {
-      imageUrl: [],
+      url: [],
       tag: "",
     },
   });
@@ -118,12 +101,12 @@ const CreateImageForm = ({
 
   const onPhotoSubmit = async (values: z.infer<typeof imageFormSchema>) => {
     try {
-      const file = values.imageUrl[0];
+      const file = values.url[0];
       const s3ObjectKey = await uploadFile(file);
 
       // Update state and close modal
       const s3Url = `https://tdcstore.s3.us-east-1.amazonaws.com/${s3ObjectKey}`;
-      const image = { imageUrl: s3Url, tag: values.tag };
+      const image = { url: s3Url, tag: values.tag };
 
       setImages((prev) => [...prev, image]);
       setIsImageModalOpen(false);
@@ -137,12 +120,7 @@ const CreateImageForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onPhotoSubmit)} className="w-full">
-        <CustomFormField
-          name="imageUrl"
-          label=""
-          type="file"
-          accept="image/*"
-        />
+        <CustomFormField name="url" label="" type="file" accept="image/*" />
 
         <CustomFormField name="tag" label="Tag" type="" />
 
@@ -168,16 +146,7 @@ const CreateImageForm = ({
   );
 };
 
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  productType: z.string().min(1, "Product type is required"),
-  style: z.string().min(1, "Style is required"),
-  size: z.string().min(1, "Size is required"),
-  price: z.coerce.number().min(0, "Price must be non-negative"),
-  stock: z.coerce.number().min(0, "Stock must be non-negative"),
-});
-
-const Item = ({ imageUrl, tag }) => {
+const Item = ({ url, tag }) => {
   return (
     <Card className="relative w-32 h-48 overflow-hidden transition-transform transform hover:scale-105 shadow-md">
       <CardContent className="p-2 flex flex-col items-center h-full">
@@ -193,7 +162,7 @@ const Item = ({ imageUrl, tag }) => {
         </Button>
         <div className="relative w-full h-32">
           <Image
-            src={imageUrl}
+            src={url}
             alt={tag}
             fill
             className="object-cover rounded-md"
@@ -208,6 +177,14 @@ const Item = ({ imageUrl, tag }) => {
   );
 };
 
+const formSchema = z.object({
+  productType: z.string().min(1, "Product type is required"),
+  style: z.string().min(1, "Style is required"),
+  size: z.string().min(1, "Size is required"),
+  price: z.coerce.number().min(0, "Price must be non-negative"),
+  stock: z.coerce.number().min(0, "Stock must be non-negative"),
+});
+
 const CreateForm = ({
   setIsOpen,
 }: {
@@ -220,12 +197,9 @@ const CreateForm = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
       productType: "",
       style: "",
       size: "",
-      // price: 0,
-      // stock: 0,
     },
   });
 
@@ -245,13 +219,14 @@ const CreateForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { data, errors } = await createProduct({
       variables: {
-        name: values.name,
-        productType: values.productType,
-        style: values.style,
-        size: values.size,
-        price: values.price,
-        stock: values.stock,
-        photos: photos.length > 0 ? photos : null, // Handle optional photos
+        product: {
+          productType: values.productType,
+          style: values.style,
+          size: values.size,
+          price: values.price,
+          stock: values.stock,
+          photos: photos.length > 0 ? photos : [], // Handle optional photos
+        },
       },
     });
 
@@ -273,35 +248,6 @@ const CreateForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="grid grid-cols-1 gap-6 sm:px-0 px-4 w-full"
       >
-        <CustomFormField name="name" label="Name" type="" />
-        <CustomFormField name="productType" label="productType" type="" />
-        <CustomFormField name="style" label="Style" type="" />
-        <CustomFormField name="size" label="Size" type="" />
-        <CustomFormField name="price" label="Price" type="number" />
-        <CustomFormField name="stock" label="Stock" type="number" />
-
-        <div className="flex flex-row justify-between">
-          <div>Images</div>
-          <Button
-            type="button"
-            variant="ghost"
-            className="h-8 w-8 p-0 flex items-center rounded-md bg-white shadow-md hover:bg-gray-100"
-            onClick={() => {
-              setCreateImageFormOpen(true);
-            }}
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-5 gap-1">
-          {photos.length > 0 ? (
-            photos.map((photo, index) => <Item key={index} {...photo} />)
-          ) : (
-            <div>No photos in this order</div>
-          )}
-        </div>
-
         <ResponsiveDialog
           isOpen={isCreateImageFormOpen}
           setIsOpen={setCreateImageFormOpen}
@@ -313,7 +259,38 @@ const CreateForm = ({
             setImages={setPhotos}
           />
         </ResponsiveDialog>
+        {/* photos */}
+        <div>
+          <div className="flex flex-row justify-between">
+            <div>Images</div>
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-8 w-8 p-0 flex items-center rounded-md bg-white shadow-md hover:bg-gray-100"
+              onClick={() => {
+                setCreateImageFormOpen(true);
+              }}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-5 gap-1">
+            {photos.length > 0 ? (
+              photos.map((photo, index) => <Item key={index} {...photo} />)
+            ) : (
+              <div>No photos in this order</div>
+            )}
+          </div>
+        </div>
 
+        {/* fields */}
+        <CustomFormField name="productType" label="productType" type="" />
+        <CustomFormField name="style" label="Style" type="" />
+        <CustomFormField name="size" label="Size" type="" />
+        <CustomFormField name="price" label="Price" type="number" />
+        <CustomFormField name="stock" label="Stock" type="number" />
+
+        {/* submit button */}
         <div className="flex w-full sm:justify-end">
           <Button
             type="submit"

@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Intro
 
-## Getting Started
+build a inventory management system to display products, track product details in inventory. Track inventory orders, advanced features include mapping out warehouse. 
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+display products with easy visuals 
+display product details
+display product orders 
+product location in warehouse
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+what problem am i solving here?
+manage the inventory
+why?
+to be more organized
+why?
+i know what is in my inventory. i know what i sold. i know turnover rate. i know what i can sell. i know what sells and what doesnt sell. 
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+i know my order size and can adjust my order size
+i know what is in my inventory that doesnt sell
 
-## Learn More
+i know what to order more of, what is the turnover rate of popular products
+i know my costs by managing inventory i know what are my inventory costs. 
+costs of storing the product. costs of the product itself. i know which product is worth re-ordering. 
 
-To learn more about Next.js, take a look at the following resources:
+inventory management is also necessary to optimize inventory space. if inventory space is limited, i need to know exactly what is in there, how  much space i have left, how much space i have to order, what products are holding up my space, adjust order sizes based on turnover rate. if the single doors are selling then i should have them available in my warehouse. if i put too much money into products that i dont sell then inventory space is taken up and i dont have cash to place orders for products that do sell. I see that the single doors are selling fast so we need to build around that. focus on that, build around that product offering, it is what most people want. 
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
