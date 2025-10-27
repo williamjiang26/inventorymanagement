@@ -41,6 +41,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { gql } from "@apollo/client";
 import { useQuery } from "@apollo/client/react";
+import Link from "@/node_modules/next/link";
+import { useRouter } from "@/node_modules/next/navigation";
 
 const GET_PRODUCTS = gql`
   query {
@@ -62,8 +64,9 @@ export default function Home() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [layout, setLayout] = useState("grid");
   const { loading, error, data } = useQuery(GET_PRODUCTS);
-  const products = data?.getProducts || []
-  
+  const products = data?.getProducts || [];
+  const router = useRouter()
+
   return (
     <div className="p-5 w-full">
       {/* Header */}
@@ -118,7 +121,10 @@ export default function Home() {
         {layout == "grid" ? (
           <div className="grid grid-cols-5 gap-1">
             {products.map((product, index) => (
-              <div key={index}>
+              <div
+                key={index}
+                onClick={() => router.push(`/${product.id}/gallery`)}
+              >
                 <Card className="w-full max-w-sm overflow-hidden transition-transform transform hover:scale-105 shadow-lg hover:shadow-xl">
                   <CardContent className="p-0">
                     <div className="relative w-full h-64">

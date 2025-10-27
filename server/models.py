@@ -94,3 +94,26 @@ def get_products():
             )
         deserializedItems.append(formatted_item)
     return deserializedItems
+
+
+def get_productById(id: str) -> ItemModel:
+    
+    response = table.get_item(Key={"id": id})
+    item = response.get("Item")
+    
+    if not item:
+        return None
+    if item:
+        formatted_item = ItemModel(
+                id=item["id"],
+                productType=item["productType"],
+                style=item["style"],
+                size=item["size"],
+                price=item["price"],
+                stock=item["stock"],
+                photos=[
+                    PhotoModel(url=photo["url"], tag=photo["tag"]) for photo in item["photos"]
+                ],
+            )
+
+    return formatted_item

@@ -44,6 +44,10 @@ class PresignedURL:
 @strawberry.type
 class Query:
     @strawberry.field
+    def get_product(self, id: str) -> Optional[Product]:
+        return models.get_productById(id)
+
+    @strawberry.field
     def get_products(self) -> List[Product]:
         return models.get_products()
         
