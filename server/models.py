@@ -80,7 +80,6 @@ def get_products():
     items = response.get("Items", [])
     deserializedItems = []
     for item in items:
-        print(item)
         formatted_item = ItemModel(
                 id=item["id"],
                 productType=item["productType"],
