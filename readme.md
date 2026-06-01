@@ -4,6 +4,8 @@
 
 **Pantry Tracker** is a web application designed to help restaurants track groceries in their pantry. Simply take a photo to identify grocery items.
 
+Demo coming soon
+
 ## Tech Stack
 
 - **Frontend:**
@@ -25,4 +27,6 @@
   - AWS (Lambda, Cognito, Amplify)
   - GitHub Actions
 
+## Future Features 
+- [x] add product to inventory by taking a photo 
  
